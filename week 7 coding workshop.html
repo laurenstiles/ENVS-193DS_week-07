@@ -96,6 +96,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="week 7 coding workshop_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="week 7 coding workshop_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="week 7 coding workshop_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="week 7 coding workshop_files/libs/tabwid-1.1.3/tabwid.css" rel="stylesheet">
+<script src="week 7 coding workshop_files/libs/tabwid-1.1.3/tabwid.js"></script>
 
 
 </head>
@@ -197,11 +199,61 @@ Coefficients:
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>null device 
-          1 </code></pre>
 </div>
+<p>#Putting things together to communicate</p>
+<section id="model-predictions" class="level2">
+<h2 class="anchored" data-anchor-id="model-predictions">model predictions</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#terms corresponds to whatever the predictor was in the model </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(maples_model, <span class="at">terms =</span> <span class="st">"stem_length"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#group = 1 means 1 continual predictor variable? </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>#Plot predictions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>plot_predictions <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> maples_data, <span class="fu">aes</span>(stem_length, <span class="at">y =</span> stem_dry_mass)) <span class="sc">+</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#first plot the underlying data </span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#plitting model predictions from the predictions object from ggeffects</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> predictions, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> predicted), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#plot the confidence interval around model estimates </span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">data =</span> predictions, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> predicted, <span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">alpha =</span> <span class="fl">0.2</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#do not use geom_smooth because it does not tell you where the model comes from, what the equation is, standard intervals, ect...</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>plot_predictions</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="week-7-coding-workshop_files/figure-html/plotting-predictions-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#PREDICTIONS DATA: </span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#x is values from stem_length -- chooses nice numbers </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#predicted y value or dry_mass</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="create-tables" class="level2">
+<h2 class="anchored" data-anchor-id="create-tables">Create tables</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(maples_model)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>model_squares <span class="ot">&lt;-</span> <span class="fu">anova</span>(maples_model)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#shows something similar to a regular anova table </span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#r squared comes from ratio of the sum of squares....</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>making a table</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#when creating a table you want to render, DO NOT NAME IT </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>model_squares_table <span class="ot">&lt;-</span> <span class="fu">tidy</span>(model_squares) <span class="sc">|&gt;</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">mutate</span>(<span class="at">p.value =</span> <span class="fu">case_when</span>(p.value <span class="sc">&lt;</span><span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"&lt; 0.001"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">flextable</span>() <span class="sc">|&gt;</span>  <span class="co">#easiest way to make this into a table </span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">set_header_labels</span>(<span class="at">df =</span> <span class="st">"Degrees of Freedom"</span>, <span class="at">sumsq =</span> <span class="st">"Sum of Squares"</span>) <span class="co">#change column names </span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                       </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>model_squares_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div class="tabwid"><style>.cl-7c9ac0f0{}.cl-7c939320{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-7c969160{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-7c96916a{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-7c96a146{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-7c96a147{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-7c96a150{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-7c96a151{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-7c96a15a{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-7c96a15b{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style><table data-quarto-disable-processing="true" class="cl-7c9ac0f0"><thead><tr style="overflow-wrap:break-word;"><th class="cl-7c96a146"><p class="cl-7c969160"><span class="cl-7c939320">term</span></p></th><th class="cl-7c96a147"><p class="cl-7c96916a"><span class="cl-7c939320">Degrees of Freedom</span></p></th><th class="cl-7c96a147"><p class="cl-7c96916a"><span class="cl-7c939320">Sum of Squares</span></p></th><th class="cl-7c96a147"><p class="cl-7c96916a"><span class="cl-7c939320">meansq</span></p></th><th class="cl-7c96a147"><p class="cl-7c96916a"><span class="cl-7c939320">statistic</span></p></th><th class="cl-7c96a146"><p class="cl-7c969160"><span class="cl-7c939320">p.value</span></p></th></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td class="cl-7c96a150"><p class="cl-7c969160"><span class="cl-7c939320">stem_length</span></p></td><td class="cl-7c96a151"><p class="cl-7c96916a"><span class="cl-7c939320">1</span></p></td><td class="cl-7c96a151"><p class="cl-7c96916a"><span class="cl-7c939320">0.0008864214</span></p></td><td class="cl-7c96a151"><p class="cl-7c96916a"><span class="cl-7c939320">0.00088642137</span></p></td><td class="cl-7c96a151"><p class="cl-7c96916a"><span class="cl-7c939320">25.08876</span></p></td><td class="cl-7c96a150"><p class="cl-7c969160"><span class="cl-7c939320">&lt; 0.001</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-7c96a15a"><p class="cl-7c969160"><span class="cl-7c939320">Residuals</span></p></td><td class="cl-7c96a15b"><p class="cl-7c96916a"><span class="cl-7c939320">118</span></p></td><td class="cl-7c96a15b"><p class="cl-7c96916a"><span class="cl-7c939320">0.0041691066</span></p></td><td class="cl-7c96a15b"><p class="cl-7c96916a"><span class="cl-7c939320">0.00003533141</span></p></td><td class="cl-7c96a15b"><p class="cl-7c96916a"><span class="cl-7c939320"></span></p></td><td class="cl-7c96a15a"><p class="cl-7c969160"><span class="cl-7c939320"></span></p></td></tr></tbody></table></div>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#use this to communicate about where r2 comes from </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 </section>
 
 </main>

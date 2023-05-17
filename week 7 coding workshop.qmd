@@ -87,3 +87,59 @@ plot(maples_model)
 dev.off()
 ```
 
+#Putting things together to communicate 
+
+## model predictions 
+
+```{r pulling out predictions}
+#terms corresponds to whatever the predictor was in the model 
+predictions <- ggpredict(maples_model, terms = "stem_length")
+#group = 1 means 1 continual predictor variable? 
+
+```
+
+#Plot predictions: 
+
+```{r plotting-predictions}
+plot_predictions <- ggplot(data = maples_data, aes(stem_length, y = stem_dry_mass)) + 
+  #first plot the underlying data 
+  geom_point() + 
+  #plitting model predictions from the predictions object from ggeffects
+  geom_line(data = predictions, aes(x = x, y = predicted), color = "blue", linewidth = 1) + 
+  #plot the confidence interval around model estimates 
+  geom_ribbon(data = predictions, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), alpha = 0.2)
+#do not use geom_smooth because it does not tell you where the model comes from, what the equation is, standard intervals, ect...
+
+plot_predictions
+
+#PREDICTIONS DATA: 
+#x is values from stem_length -- chooses nice numbers 
+#predicted y value or dry_mass
+
+```
+
+## Create tables 
+
+```{r model-summary-table}
+model_summary <- summary(maples_model)
+
+model_squares <- anova(maples_model)
+#shows something similar to a regular anova table 
+#r squared comes from ratio of the sum of squares....
+
+```
+
+making a table 
+
+```{r}
+#when creating a table you want to render, DO NOT NAME IT 
+
+model_squares_table <- tidy(model_squares) |> 
+                       mutate(p.value = case_when(p.value <0.001 ~ "< 0.001")) |>
+                       flextable() |>  #easiest way to make this into a table 
+                       set_header_labels(df = "Degrees of Freedom", sumsq = "Sum of Squares") #change column names 
+                       
+model_squares_table
+#use this to communicate about where r2 comes from 
+```
+
