@@ -1,0 +1,89 @@
+---
+title: "Envs 193DS week 7 coding workshop"
+format: html
+editor: visual
+execute: 
+  warning: FALSE
+  message: FALSE 
+---
+
+# set up 
+
+```{r libraries}
+library(tidyverse)
+library(here) 
+library(lterdatasampler)
+
+library(performance)
+library(broom) #puts all outputs from model into a table
+library(flextable) #whole manual online, allows you to create tables that render nicely 
+library(ggeffects) #get predictions from models and plot them...
+library(car) #pull out ANOVA tables specifically for linear models 
+library(naniar)
+```
+
+# Linear models 
+
+How does stem length _predict_ stem dry mass? 
+
+```{r filtering-data}
+maples_data <- hbr_maples |> 
+                filter(year == 2003 & watershed == "Reference")
+
+```
+
+Visualizing missing data 
+```{r missing-data-var}
+gg_miss_var(maples_data) #we have no missing observations for filtered data frame 
+
+```
+
+Create exploratory data visualization: 
+
+```{r explore-data-viz}
+ggplot(data = maples_data, aes(x = stem_length, y = stem_dry_mass)) + 
+  geom_point() #just looking at the plot, would hypothesize that there is a positive relationship
+
+```
+
+#Let's try a model: 
+
+```{r linear-model-maples}
+
+#lm() is how you run a linear model 
+#first, write model -- then check assumptions -- need to do this before interpreting model! 
+maples_model <- lm(stem_dry_mass ~ stem_length, data = maples_data)
+
+maples_model
+
+                   
+
+```
+Check assumptions:
+1. linear relationship between variables: yes! (used exploratory data viz)
+2. independence of errors: yes! (making that assumption based on how the data were collected)
+3. homoskedasticity of errors: yes! (making deicision from residuals vs fitted/scale-location plots)
+4. normally distributed errors: yes! (looking at qqplot of rediduals)
+
+```{r checking-assumptions}
+#TRY running plot(maples_model) in console 
+#this will give diagnostic plots 
+#residuals vs fitted seems homoscedastic 
+#normal q-q looks pretty normal 
+#scale-location -- looks right, line is pretty straight
+#residuals vs leverage -- looking for labeled points, there are some but they probs dont influnce predictions much because are not outside of dotted line range -> does not seem that there are outliers affecting model predictions 
+
+#display all on same grid 
+#set graphical parameters 
+par(mfrow = c(2,2))
+plot(maples_model)
+#we do not want the same dimensions for every plot 
+#so, turn of 2x2 grid
+
+```
+
+
+```{r turning-off-the-grid, results = FALSE}
+dev.off()
+```
+
